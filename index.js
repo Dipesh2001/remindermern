@@ -11,7 +11,7 @@ app.use(cors())
 
 //DB config
 mongoose.connect('mongodb://localhost:27017/reminderAppDB', {
-    useNewUrlParser: true, 
+    useNewUrlParser: true,
     useUnifiedTopology: true
 }, () => console.log("DB connected"))
 const reminderSchema = new mongoose.Schema({
@@ -26,28 +26,28 @@ const Reminder = new mongoose.model("reminder", reminderSchema)
 
 setInterval(() => {
     Reminder.find({}, (err, reminderList) => {
-        if(err) {
+        if (err) {
             console.log(err)
         }
-        if(reminderList){
+        if (reminderList) {
             reminderList.forEach(reminder => {
-                if(!reminder.isReminded){
+                if (!reminder.isReminded) {
                     const now = new Date()
-                    if((new Date(reminder.remindAt) - now) < 0) {
-                        Reminder.findByIdAndUpdate(reminder._id, {isReminded: true}, (err, remindObj)=>{
-                            if(err){
+                    if ((new Date(reminder.remindAt) - now) < 0) {
+                        Reminder.findByIdAndUpdate(reminder._id, { isReminded: true }, (err, remindObj) => {
+                            if (err) {
                                 console.log(err)
                             }
-                            const accountSid = process.env.ACCOUNT_SID 
+                            const accountSid = process.env.ACCOUNT_SID
                             const authToken = process.env.AUTH_TOKEN
-                            const client = require('twilio')(accountSid, authToken); 
-                            client.messages 
-                                .create({ 
-                                    body: reminder.reminderMsg, 
-                                    from: 'whatsapp:+14155238886',       
-                                    to: 'whatsapp:+918888888888' //YOUR PHONE NUMBER INSTEAD OF 8888888888
-                                }) 
-                                .then(message => console.log(message.sid)) 
+                            const client = require('twilio')(accountSid, authToken);
+                            client.messages
+                                .create({
+                                    body: reminder.reminderMsg,
+                                    from: 'whatsapp:+14155238886',
+                                    to: 'whatsapp:+917201090719' //my phone number
+                                })
+                                .then(message => console.log(message.sid))
                                 .done()
                         })
                     }
@@ -55,17 +55,15 @@ setInterval(() => {
             })
         }
     })
-},1000)
-;
+}, 1000);
 
 
-//API routes
 app.get("/getAllReminder", (req, res) => {
     Reminder.find({}, (err, reminderList) => {
-        if(err){
+        if (err) {
             console.log(err)
         }
-        if(reminderList){
+        if (reminderList) {
             res.send(reminderList)
         }
     })
@@ -78,14 +76,14 @@ app.post("/addReminder", (req, res) => {
         isReminded: false
     })
     reminder.save(err => {
-        if(err){
+        if (err) {
             console.log(err)
         }
         Reminder.find({}, (err, reminderList) => {
-            if(err){
+            if (err) {
                 console.log(err)
             }
-            if(reminderList){
+            if (reminderList) {
                 res.send(reminderList)
             }
         })
@@ -93,12 +91,12 @@ app.post("/addReminder", (req, res) => {
 
 })
 app.post("/deleteReminder", (req, res) => {
-    Reminder.deleteOne({_id: req.body.id}, () => {
+    Reminder.deleteOne({ _id: req.body.id }, () => {
         Reminder.find({}, (err, reminderList) => {
-            if(err){
+            if (err) {
                 console.log(err)
             }
-            if(reminderList){
+            if (reminderList) {
                 res.send(reminderList)
             }
         })
